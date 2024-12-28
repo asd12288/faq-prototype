@@ -52,7 +52,7 @@ def scrape():
     if "error" in scraped_data:
         return jsonify({"error": scraped_data["error"]}), 500
 
-    # Format the scraped data without using backslashes in f-string
+    # Convert scraped data to text
     sections = [
         f"Title: {scraped_data['title']}",
         "Headings:",
@@ -60,13 +60,25 @@ def scrape():
         "Paragraphs:",
         *scraped_data['paragraphs']
     ]
+    scraped_data_text = "\n".join(filter(None, sections))
     
-    # Join with newlines to create the final text
-    scraped_data_text = "\n".join(sections)
+    # Generate 3 most relevant FAQs
+    try:
+        faq_completion = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "Generate 3 highly relevant FAQ questions and answers based on the content."},
+                {"role": "user", "content": f"Content:\n\n{scraped_data_text}\n\nCreate 3 relevant FAQ questions and answers."}
+            ]
+        )
+        scraped_faqs = faq_completion.choices[0].message.content
+    except Exception as e:
+        return jsonify({"error": f"FAQ generation error: {str(e)}"}), 500
     
     return jsonify({
         "message": "Scraping successful",
-        "scraped_data": scraped_data
+        "scraped_data": scraped_data,
+        "faqs": scraped_faqs
     })
 
 @app.route('/ask', methods=['POST'])
@@ -85,29 +97,28 @@ def ask():
         return jsonify({"error": "No question provided"}), 400
 
     try:
-        completion = client.chat.completions.create(
-            
-            model="gpt-4o-mini",  # Make sure this is the correct model name
+        # First, generate related FAQ questions
+        faq_completion = client.chat.completions.create(
+            model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": 'You are a helpful assistant.'},
+                {"role": "system", "content": "Generate 3 related FAQ questions and answers based on the content."},
+                {"role": "user", "content": f"Based on this content:\n\n{scraped_data_text}\n\nGenerate 3 related FAQ questions and answers for: {question}"}
+            ]
+        )
+        
+        # Then get the main answer
+        main_completion = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
                 {"role": "user", "content": f"Based on the following website data:\n\n{scraped_data_text}\n\nAnswer the question: {question}"}
             ]
         )
         
-
-#         completion = client.chat.completions.create(
-#     model="gpt-4o-mini",
-#     messages=[
-#         {"role": "system", "content": "You are a helpful assistant."},
-#         {
-#             "role": "user",
-#             "content": "Write a JOKE."
-#         }
-#     ]
-# )
-
-        answer = completion.choices[0].message.content
-        return jsonify({"answer": answer})
+        return jsonify({
+            "main_answer": main_completion.choices[0].message.content,
+            "faqs": faq_completion.choices[0].message.content
+        })
     except Exception as e:
         return jsonify({"error": f"OpenAI API error: {str(e)}"}), 500
 

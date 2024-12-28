@@ -1,82 +1,295 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LLM FAQ Input</title>
-    <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LLM FAQ Input</title>
 
+  <!-- Combined inline styles -->
+  <style>
+    /* ===== Basic Page Setup ===== */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f3f3f3;
+    }
+    h1 {
+      margin: 20px auto 10px auto;
+      max-width: 700px;
+      padding: 0 20px;
+    }
+    p {
+      margin: 0 auto 20px auto;
+      max-width: 700px;
+      padding: 0 20px;
+      line-height: 1.5;
+    }
 
+    /* ===== Scraping & FAQ Container ===== */
+    .faq-container {
+      max-width: 700px;
+      margin: 0 auto 40px auto;
+      padding: 0 20px;
+    }
+
+    /* ===== Query Section (Scraping) ===== */
+    .scrape-section, .query-section {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .scrape-section input, .query-section input {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    .scrape-section button, .query-section button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background: #007bff;
+      border: none;
+      color: #fff;
+      transition: background 0.3s ease;
+    }
+    .scrape-section button:hover, .query-section button:hover {
+      background: #0056b3;
+    }
+
+    /* ===== Response Container ===== */
+    .response-container {
+      background: #fff;
+      border-radius: 5px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+
+    /* ===== Main Answer ===== */
+    .main-answer {
+      margin: 20px 0;
+      padding: 15px;
+      background: #f9fafb;
+      border-left: 4px solid #007bff;
+      border-radius: 3px;
+    }
+    .main-answer h2 {
+      margin-top: 0;
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: #007bff;
+    }
+    .main-answer p {
+      margin: 0;
+      line-height: 1.5;
+      color: #333;
+    }
+
+    /* ===== Related FAQ ===== */
+    .related-faqs {
+      margin-top: 20px;
+    }
+    .related-faqs h3 {
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+      border-left: 4px solid #007bff;
+      padding-left: 10px;
+      color: #007bff;
+    }
+    .faq-list {
+      margin-top: 10px;
+    }
+
+    /* ===== FAQ Question / Answer ===== */
+    .faq-question {
+      cursor: pointer;
+      padding: 15px;
+      background: #f1f1f1;
+      margin: 5px 0;
+      border-radius: 5px;
+      transition: background 0.3s ease;
+      position: relative;
+      font-weight: 500;
+      color: #333;
+    }
+    .faq-question:hover {
+      background: #e0e0e0;
+    }
+
+    /* By default, answers are hidden */
+    .faq-answer {
+      display: none;
+      padding: 15px;
+      margin: 0 0 10px 0;
+      border-left: 4px solid #007bff;
+      background: #fff;
+      line-height: 1.5;
+      border-radius: 0 5px 5px 5px;
+      color: #333;
+    }
+
+    /* Expand/Collapse Icons */
+    .faq-question::after {
+      content: '+';
+      position: absolute;
+      right: 20px;
+      font-size: 1.2rem;
+    }
+    .faq-question.active::after {
+      content: '-';
+    }
+  </style>
 </head>
 <body>
-    <h1>Dynamic FAQ</h1>
-    <p>Enter a URL for the scraper to work on, then ask a question based on the scraped data!</p>
-    <div>
-        <input type="text" id="scraperUrl" placeholder="Enter website URL for scraping..." />
-        <button id="scrapeBtn">Scrape Website</button>
+
+  <h1>Dynamic FAQ</h1>
+  <p>Enter a URL for the scraper to work on, then ask a question based on the scraped data!</p>
+
+  <!-- Scraping Section -->
+  <div class="faq-container scrape-section">
+    <input type="text" id="scraperUrl" placeholder="Enter website URL for scraping..." />
+    <button id="scrapeBtn">Scrape Website</button>
+  </div>
+
+  <!-- FAQ Section -->
+  <div class="faq-container">
+    <!-- Query Section (Asking a Question) -->
+    <div class="query-section">
+      <input type="text" id="query" placeholder="Enter your question here..."/>
+      <button id="askBtn">Ask</button>
     </div>
-    <div>
-        <input type="text" id="query" placeholder="Ask your question..." />
-        <button id="askBtn">Get Answer</button>
+
+    <!-- Response Container -->
+    <div id="response" class="response-container">
+      <!-- Populated by JavaScript after scraping or asking a question -->
     </div>
-    <div id="response" class="response">Response will appear here.</div>
+  </div>
 
-    <script>
-        document.getElementById("scrapeBtn").addEventListener("click", async () => {
-            const url = document.getElementById("scraperUrl").value;
-            if (!url) {
-                alert("Please enter a URL.");
-                return;
-            }
+  <!-- Scripts -->
+  <script>
+    /********************************************
+     * SCRAPING LOGIC
+     ********************************************/
+    document.getElementById("scrapeBtn").addEventListener("click", async () => {
+      const url = document.getElementById("scraperUrl").value;
+      const responseElement = document.getElementById("response");
 
-            const responseElement = document.getElementById("response");
-            responseElement.textContent = "Scraping website...";
+      if (!url) {
+        alert("Please enter a URL.");
+        return;
+      }
 
-            try {
-                const response = await fetch("/scrape", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ url })
-                });
-                const data = await response.json();
-                if (data.error) {
-                    responseElement.textContent = `Error: ${data.error}`;
-                } else {
-                    responseElement.textContent = "Scraping successful! You can now ask questions.";
-                }
-            } catch (error) {
-                responseElement.textContent = "An error occurred while scraping.";
-                console.error(error);
-            }
+      responseElement.textContent = "Scraping website...";
+
+      try {
+        const res = await fetch("/scrape", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url })
         });
+        const data = await res.json();
 
-        document.getElementById("askBtn").addEventListener("click", async () => {
-            const query = document.getElementById("query").value;
-            if (!query) {
-                alert("Please enter a question.");
-                return;
-            }
+        if (data.error) {
+          responseElement.textContent = `Error: ${data.error}`;
+        } else {
+          // Build HTML to display 3 relevant FAQs
+          const faqHtml = `
+            <div class="main-answer">
+              <h2>Top 3 Questions:</h2>
+              <div class="faq-list">
+                ${data.faqs}
+              </div>
+            </div>
+            <p>You can now ask a custom question as well!</p>
+          `;
+          responseElement.innerHTML = faqHtml;
 
-            const responseElement = document.getElementById("response");
-            responseElement.textContent = "Fetching answer...";
+          // FAQ toggling
+          document.querySelectorAll('.faq-question').forEach(q => {
+            q.addEventListener('click', () => {
+              const isActive = q.classList.contains('active');
+              document.querySelectorAll('.faq-question').forEach(qt => qt.classList.remove('active'));
+              document.querySelectorAll('.faq-answer').forEach(a => a.style.display = 'none');
+              if (!isActive) {
+                q.classList.add('active');
+                const ans = q.nextElementSibling;
+                if (ans && ans.classList.contains('faq-answer')) ans.style.display = 'block';
+              }
+            });
+          });
+        }
+      } catch (error) {
+        responseElement.textContent = "An error occurred while scraping.";
+        console.error(error);
+      }
+    });
 
-            try {
-                const response = await fetch("/ask", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ question: query })
-                });
-                const data = await response.json();
-                responseElement.textContent = data.answer || "No response received.";
-            } catch (error) {
-                responseElement.textContent = "An error occurred while fetching the response.";
-                console.error(error);
-            }
+    /********************************************
+     * QUESTION-ASKING LOGIC
+     ********************************************/
+    document.getElementById("askBtn").addEventListener("click", async () => {
+      const query = document.getElementById("query").value;
+      const responseElement = document.getElementById("response");
+
+      if (!query) {
+        alert("Please enter a question.");
+        return;
+      }
+
+      responseElement.textContent = "Fetching answer...";
+
+      try {
+        // POST to your /ask endpoint
+        const response = await fetch("/ask", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ question: query })
         });
-    </script>
+        const data = await response.json();
+
+        // Build HTML for main answer & related FAQs
+        const faqHtml = `
+          <div class="main-answer">
+            <h2>Answer:</h2>
+            <p>${data.main_answer}</p>
+          </div>
+          <div class="related-faqs">
+            <h3>Related Questions:</h3>
+            <div class="faq-list">
+              ${data.faqs}
+            </div>
+          </div>
+        `;
+        responseElement.innerHTML = faqHtml;
+
+        // Accordion-like toggling for .faq-question elements
+        document.querySelectorAll('.faq-question').forEach(question => {
+          question.addEventListener('click', () => {
+            const isActive = question.classList.contains('active');
+
+            // Close all open FAQ items
+            document.querySelectorAll('.faq-question').forEach(q => q.classList.remove('active'));
+            document.querySelectorAll('.faq-answer').forEach(a => (a.style.display = 'none'));
+
+            // If the clicked question was not active, open it
+            if (!isActive) {
+              question.classList.add('active');
+              const answer = question.nextElementSibling;
+              if (answer && answer.classList.contains('faq-answer')) {
+                answer.style.display = 'block';
+              }
+            }
+          });
+        });
+      } catch (error) {
+        responseElement.textContent = "An error occurred while fetching the response.";
+        console.error(error);
+      }
+    });
+  </script>
 </body>
 </html>
