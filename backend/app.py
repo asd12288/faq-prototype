@@ -85,24 +85,26 @@ def ask():
         return jsonify({"error": "No question provided"}), 400
 
     try:
-        # completion = client.chat.completions.create(
-        #     model="gpt-4-mini",  # Make sure this is the correct model name
-        #     messages=[
-        #         {"role": "system", "content": scraped_data_text},
-        #         {"role": "user", "content": f"Based on the following website data:\n\n{scraped_data_text}\n\nAnswer the question: {question}"}
-        #     ]
-        # )
-
         completion = client.chat.completions.create(
-    model="gpt-4o-mini",
-    messages=[
-        {"role": "system", "content": "You are a helpful assistant."},
-        {
-            "role": "user",
-            "content": "Write a JOKE."
-        }
-    ]
-)
+            
+            model="gpt-4o-mini",  # Make sure this is the correct model name
+            messages=[
+                {"role": "system", "content": 'You are a helpful assistant.'},
+                {"role": "user", "content": f"Based on the following website data:\n\n{scraped_data_text}\n\nAnswer the question: {question}"}
+            ]
+        )
+        
+
+#         completion = client.chat.completions.create(
+#     model="gpt-4o-mini",
+#     messages=[
+#         {"role": "system", "content": "You are a helpful assistant."},
+#         {
+#             "role": "user",
+#             "content": "Write a JOKE."
+#         }
+#     ]
+# )
 
         answer = completion.choices[0].message.content
         return jsonify({"answer": answer})
