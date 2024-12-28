@@ -1,4 +1,5 @@
 import requests
+import os
 from bs4 import BeautifulSoup
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
@@ -7,8 +8,9 @@ from openai import OpenAI
 app = Flask(__name__, static_url_path='', static_folder='../frontend/public')
 CORS(app)
 
+
 # Set your OpenAI API key
-client = OpenAI()
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 # Initialize scraped_data_text as a global variable
 scraped_data_text = ""
