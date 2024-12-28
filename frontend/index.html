@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM FAQ Input</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #444;
+            margin-bottom: 10px;
+        }
+
+        p {
+            text-align: center;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"] {
+            width: 300px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background-color: #4cae4c;
+        }
+
+        #response {
+            max-width: 600px;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            font-size: 14px;
+
+        }
+
+        .response {
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dynamic FAQ</h1>
+    <p>Enter a URL for the scraper to work on, then ask a question based on the scraped data!</p>
+    <div>
+        <input type="text" id="scraperUrl" placeholder="Enter website URL for scraping..." />
+        <button id="scrapeBtn">Scrape Website</button>
+    </div>
+    <div>
+        <input type="text" id="query" placeholder="Ask your question..." />
+        <button id="askBtn">Get Answer</button>
+    </div>
+    <div id="response" class="response">Response will appear here.</div>
+
+    <script>
+        document.getElementById("scrapeBtn").addEventListener("click", async () => {
+            const url = document.getElementById("scraperUrl").value;
+            if (!url) {
+                alert("Please enter a URL.");
+                return;
+            }
+
+            const responseElement = document.getElementById("response");
+            responseElement.textContent = "Scraping website...";
+
+            try {
+                const response = await fetch("http://localhost:5000/scrape", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ url })
+                });
+                const data = await response.json();
+                if (data.error) {
+                    responseElement.textContent = `Error: ${data.error}`;
+                } else {
+                    responseElement.textContent = "Scraping successful! You can now ask questions.";
+                }
+            } catch (error) {
+                responseElement.textContent = "An error occurred while scraping.";
+                console.error(error);
+            }
+        });
+
+        document.getElementById("askBtn").addEventListener("click", async () => {
+            const query = document.getElementById("query").value;
+            if (!query) {
+                alert("Please enter a question.");
+                return;
+            }
+
+            const responseElement = document.getElementById("response");
+            responseElement.textContent = "Fetching answer...";
+
+            try {
+                const response = await fetch("http://localhost:5000/ask", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ question: query })
+                });
+                const data = await response.json();
+                responseElement.textContent = data.answer || "No response received.";
+            } catch (error) {
+                responseElement.textContent = "An error occurred while fetching the response.";
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+</html>
