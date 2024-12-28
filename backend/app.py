@@ -35,22 +35,23 @@ def scrape():
     data = request.get_json()
     url = data.get("url")
     if not url:
-        return jsonify({"error": "No URL provided"})
+        return jsonify({"error": "No URL provided"}), 400  # Added 400 status code for client errors
 
     scraped_data = scrape_website(url)
     if "error" in scraped_data:
-        return jsonify({"error": scraped_data["error"]})
+        return jsonify({"error": scraped_data["error"]}), 500  # Added 500 status code for server errors
 
+    # Properly formatted multiline string
     global scraped_data_text
     scraped_data_text = f"""
-        Title: {scraped_data['title']}
+Title: {scraped_data['title']}
 
-        Headings:
-        {'\n'.join(scraped_data['headings'])}
+Headings:
+{'\n'.join(scraped_data['headings'])}
 
-        Paragraphs:
-        {'\n'.join(scraped_data['paragraphs'])}
-        """
+Paragraphs:
+{'\n'.join(scraped_data['paragraphs'])}
+"""
     return jsonify({"message": "Scraping successful", "scraped_data": scraped_data})
 
 
