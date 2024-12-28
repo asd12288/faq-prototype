@@ -10,7 +10,7 @@ CORS(app)
 
 
 # Set your OpenAI API key
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+client = OpenAI()
 
 # Initialize scraped_data_text as a global variable
 scraped_data_text = ""
@@ -85,13 +85,24 @@ def ask():
         return jsonify({"error": "No question provided"}), 400
 
     try:
+        # completion = client.chat.completions.create(
+        #     model="gpt-4-mini",  # Make sure this is the correct model name
+        #     messages=[
+        #         {"role": "system", "content": scraped_data_text},
+        #         {"role": "user", "content": f"Based on the following website data:\n\n{scraped_data_text}\n\nAnswer the question: {question}"}
+        #     ]
+        # )
+
         completion = client.chat.completions.create(
-            model="gpt-4-mini",  # Make sure this is the correct model name
-            messages=[
-                {"role": "system", "content": scraped_data_text},
-                {"role": "user", "content": f"Based on the following website data:\n\n{scraped_data_text}\n\nAnswer the question: {question}"}
-            ]
-        )
+    model="gpt-4o-mini",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {
+            "role": "user",
+            "content": "Write a JOKE."
+        }
+    ]
+)
 
         answer = completion.choices[0].message.content
         return jsonify({"answer": answer})
@@ -99,4 +110,4 @@ def ask():
         return jsonify({"error": f"OpenAI API error: {str(e)}"}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)
+    app.run()
