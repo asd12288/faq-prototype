@@ -5,24 +5,50 @@ import requests
 from bs4 import BeautifulSoup
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-from openai import OpenAI
+import openai
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+# Initialize the Flask app
 app = Flask(__name__, static_url_path='', static_folder='../frontend/public')
 CORS(app)
 
-# Log OpenAI API key status (don't log the actual key!)
+# Retrieve the OpenAI API key from environment variables
 api_key = os.getenv('OPENAI_API_KEY')
 logger.info(f"OpenAI API key present: {api_key is not None}")
 
-try:
-    client = OpenAI(api_key=api_key)
-    logger.info("OpenAI client initialized successfully")
-except Exception as e:
-    logger.error(f"Failed to initialize OpenAI client: {str(e)}")
+# Assign the API key to the OpenAI library
+openai.api_key = api_key
+
+# Global variable to store scraped website content
+scraped_data_text = ""
+
+def scrape_website(url: str) -> dict:
+    """
+    Simple function to scrape a website. 
+    Returns a dictionary containing title, headings, and paragraphs.
+    """
+
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        # Example extraction
+        title = soup.title.string if soup.title else "No title found"
+        headings = [tag.get_text(strip=True) for tag in soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])]
+        paragraphs = [p.get_text(strip=True) for p in soup.find_all('p')]
+
+        return {
+            "title": title,
+            "headings": headings,
+            "paragraphs": paragraphs
+        }
+
+    except Exception as e:
+        return {"error": f"Failed to scrape website: {str(e)}"}
 
 @app.route("/scrape", methods=['POST'])
 def scrape():
@@ -43,10 +69,12 @@ def scrape():
         logger.info(f"Attempting to scrape URL: {url}")
         scraped_data = scrape_website(url)
         
+        # Check for error in scraping
         if "error" in scraped_data:
             logger.error(f"Scraping error: {scraped_data['error']}")
             return jsonify({"error": scraped_data["error"]}), 500
 
+        # Create a text-based representation of the scraped content
         sections = [
             f"Title: {scraped_data['title']}",
             "Headings:",
@@ -87,10 +115,10 @@ def ask():
             return jsonify({"error": "No question provided"}), 400
 
         logger.info(f"Sending request to OpenAI with question: {question}")
-        completion = client.chat.completions.create(
-            model="gpt-3.5-turbo",  # Using a standard model name
+        completion = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": scraped_data_text},
+                {"role": "system", "content": "You are ChatGPT, and this is the scraped content."},
                 {"role": "user", "content": f"Based on the following website data:\n\n{scraped_data_text}\n\nAnswer the question: {question}"}
             ]
         )
