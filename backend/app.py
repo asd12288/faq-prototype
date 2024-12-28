@@ -1,18 +1,20 @@
 import requests
 from bs4 import BeautifulSoup
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-
-
 from openai import OpenAI
-from scraper import scraped_data_text
 
-app = Flask(__name__)
+
+app = Flask(__name__, static_url_path='', static_folder='../frontend/public')
 CORS(app)  # Enable CORS for all routes
 
 # Set your OpenAI API key
 client = OpenAI()
 
+
+@app.route('/')
+def serve_frontend():
+    return send_from_directory(app.static_folder, 'index.html')
 
 def scrape_website(url):
     try:
