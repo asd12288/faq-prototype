@@ -35,21 +35,24 @@ nav ul {
   gap: 5rem;
 }
 
+section {
+  padding: 1rem 2rem;
+
+}
+
 .container-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
+  
 }
 
 .right-container-heading {
   width: 60%;
-  padding: 1rem 2rem;
 }
 
 .left-container-heading {
   width: 40%;
-  padding: 2rem 4rem;
 }
 
 .title {
@@ -87,7 +90,6 @@ nav ul {
   background-color: #808080;
   width: 450px;
   height: 500px;
-  margin-top: 4rem;
   border-radius: 10px;
 }
 
@@ -136,3 +138,4 @@ nav ul {
   width: 90%;
   text-align: center;
 }
+
