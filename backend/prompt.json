@@ -1,0 +1,18 @@
+{
+    "message": "Scraping successful",
+    "scraped_data": "Revealbot is a platform that automates ad campaign management and provides actionable insights into ad performance.",
+    "faqs": [
+        {
+            "question": "What does Revealbot do?",
+            "answer": "Revealbot automates ad campaign management and provides actionable insights into ad performance."
+        },
+        {
+            "question": "How can Revealbot improve my advertising strategy?",
+            "answer": "Revealbot helps you optimize campaigns by reducing manual tasks and focusing on data-driven strategies."
+        },
+        {
+            "question": "What platforms does Revealbot integrate with?",
+            "answer": "Revealbot integrates with major platforms like Facebook Ads, Google Ads, and others to streamline ad management."
+        }
+    ]
+}
