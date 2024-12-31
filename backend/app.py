@@ -68,8 +68,8 @@ def scrape():
         faq_completion = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "Return JSON in the exact format { \"message\": \"Scraping successful\", \"scraped_data\": \"...\", \"faqs\": [ { \"question\": \"...\", \"answer\": \"...\" } ] }."},
-                {"role": "user", "content": f"Content:\n\n{scraped_data_text}\n\nGenerate 3 relevant FAQ questions and answers."}
+                {"role": "system", "content": "Return JSON in the exact format { \"message\": \"Scraping successful\", \"scraped_data\": \"...\", \"faqs\": [ { \"question\": \"...\", \"answer\": \"...\" } ] }. and always anser in hebrew"},
+                {"role": "user", "content": f"Content:\n\n{scraped_data_text}\n\nGenerate 3 relevant FAQ questions and answers. answer always in hebrew"}
             ]
         )
         scraped_faqs_str = faq_completion.choices[0].message.content

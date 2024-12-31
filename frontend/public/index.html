@@ -5,6 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="css/styles.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
   <title>LLM FAQ Input</title>
 </head>
 
@@ -23,8 +25,7 @@
     <div class="right-container-heading">
 
       <h1 class="title">הפכו את האתר שלכם לחכם</h1>
-      <h2 class="subtitle">בעזרת AI הפכו את האתר שלכם
-        לדור החדש של האינטרנט</h2>
+      <h2 class="subtitle">בעזרת AI הפכו את האתר שלכם לדור החדש של האינטרנט</h2>
       <button class="btn">Show me</button>
     </div>
     <div class="left-container-heading">
@@ -34,7 +35,7 @@
         <h3 class="form-title">נסו עכשיו</h3>
 
         <div class="input-section">
-          <label for="scrapeBtn">כתובת האתר שלכם</label>
+          <label for="scrapeBtn"><strong>שלב 1 </strong>כתובת האתר שלכם</label>
           <input type="text" id="scraperUrl" placeholder="כתובת האתר..." />
           <button id="scrapeBtn" class="form-btn">סרוק אתר</button>
         </div>
@@ -42,14 +43,33 @@
         <!-- FAQ Section -->
         <!-- Query Section (Asking a Question) -->
         <div class="input-section">
-          <label for="query">שאלו כל שאלה על העסק</label>
+          <label for="query"><strong>שלב 2 </strong>שאלו כל שאלה על העסק</label>
           <input type="text" id="query" placeholder="הכניסו שאלה..." />
           <button id="askBtn" class="form-btn">שאל</button>
         </div>
-        <!-- Response Container -->
         <div id="response" class="response-container">
           <!-- Populated by JavaScript after scraping or asking a question -->
+          <!-- <h2 class="response-title">תשובה</h2>
+          <p class="response-text">תשובה דוגמא</p> -->
         </div>
+        <!-- Response Container -->
+        <div id="faq" class="faq-container">
+          <!-- Populated by JavaScript after scraping or asking a question -->
+          <!-- <div class="questions-container">
+            <h2 class="faq-title">השאלות</h2>
+            <div class="faq-list">
+              <h3 class="faq-question">שאלת דוגמא 1</h3>
+              <p class="faq-answer">תשובה דוגמא 1</p>
+              <h3 class="faq-question">שאלת דוגמא 2</h3>
+              <p class="faq-answer">תשובה דוגמא 2</p>
+              <h3 class="faq-question">שאלת דוגמא 3</h3>
+              <p class="faq-answer">תשובה דוגמא 3</p>
+            </div> -->
+          </div>
+        </div>
+
+        
+
 
       </div>
 
@@ -58,17 +78,21 @@
   </section>
 
   <section class="container-how-it-work">
-    <h2>איך זה עובד?</h2>
-    <div class="container cards">
+    <h2 class="section-title">איך זה עובד?</h2>
+    <div class="container-cards">
       <div class="card">
+        <i class="fas fa-upload icon"></i>
         <h3>העלאת מסמכים</h3>
         <p>הכניסו את כתובת האתר שלכם ואנו נסרוק אותו ונציג לכם את השאלות הנפוצות ביותר</p>
       </div>
       <div class="card">
+        <i class="fas fa-atom icon"></i>
         <h3>עיבוד המידע</h3>
         <p>המערכת שלנו משתמשת ב-AI כדי למפות את המידע, ליצור שאלות ותשובות ולהתאים אותן לצרכי האתר שלכם.</p>
       </div>
       <div class="card">
+        <i class="fas fa-file-code icon"></i>
+
         <h3>הטמאת התוסף</h3>
         <p>קבלו קוד HTML להטמעה באתר שלכם, עם ממשק FAQ מוכן לשימוש.</p>
       </div>
@@ -76,13 +100,13 @@
   </section>
 
   <section class="container-info">
-    
+
   </section>
 
   <section class="container-contact">
-    <h2>צרו איתנו קשר</h2>
     <div class="contact-form">
-      <form>
+      <form class="form-container">
+        <h2 class="form-title">צרו איתנו קשר</h2>
         <input type="text" placeholder="שם מלא" required />
         <input type="email" placeholder="אימייל" required />
         <textarea placeholder="הודעה"></textarea>
