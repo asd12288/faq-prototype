@@ -113,15 +113,62 @@ const loader = (el) => {
           </div>`);
 };
 
+// SCROLLING ANIMATION
+document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+  anchor.addEventListener("click", function (e) {
+    e.preventDefault();
 
-
-// SCROLLING ANIMATION 
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-  anchor.addEventListener('click', function (e) {
-      e.preventDefault();
-
-      document.querySelector(this.getAttribute('href')).scrollIntoView({
-          behavior: 'smooth'
-      });
+    document.querySelector(this.getAttribute("href")).scrollIntoView({
+      behavior: "smooth",
+    });
   });
 });
+
+// Handle file upload
+document
+  .getElementById("uploadFileBtn")
+  .addEventListener("click", async (e) => {
+    e.preventDefault();
+    const fileInput = document.getElementById("fileInput");
+    const responseElement = document.getElementById("response");
+    if (!fileInput.files.length) {
+      alert("Please select a file.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+
+    // Show loader
+    loader(responseElement);
+
+    try {
+      const res = await fetch("/file-upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+
+      if (data.error) {
+        responseElement.innerHTML = `<div class="error">Error: ${data.error}</div>`;
+      } else {
+        // Build HTML for file analysis & related FAQs
+
+        const faqHtml = (data.faqs || [])
+          .map(
+            (faq) => `
+          <div class="faq-item">
+            <h3 class="faq-question">${faq.question}</h3>
+            <p class="faq-answer">${faq.answer}</p>
+          </div>
+        `
+          )
+          .join("");
+
+        responseElement.innerHTML = faqHtml;
+      }
+    } catch (error) {
+      responseElement.innerHTML = `<div class="error">Error: ${error}</div>`;
+      console.error(error);
+    }
+  });

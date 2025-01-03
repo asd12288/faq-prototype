@@ -5,6 +5,8 @@ from bs4 import BeautifulSoup
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from openai import OpenAI
+import PyPDF2
+
 
 app = Flask(__name__, static_url_path='', static_folder='../frontend/public')
 CORS(app)
@@ -38,6 +40,60 @@ def scrape_website(url):
         return {"error": f"Failed to fetch the website: {str(e)}"}
     except Exception as e:
         return {"error": f"Failed to scrape the website: {str(e)}"}
+    
+
+@app.route('/file-upload', methods=['POST'])
+def file_upload():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+    
+    uploaded_file = request.files['file']
+    if uploaded_file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+
+    text_content = uploaded_file.read().decode("utf-8", errors="ignore")
+
+    global scraped_data_text, scraped_faqs
+
+    print(scraped_data_text)
+    if uploaded_file.filename.lower().endswith('.pdf'):
+        pdf_reader = PyPDF2.PdfReader(uploaded_file)
+        pdf_text = ""
+        for page in pdf_reader.pages:
+            pdf_text += page.extract_text() or ""
+        text_content = pdf_text
+    else:
+        # Otherwise, treat it as a text file
+        text_content = uploaded_file.read().decode("utf-8", errors="ignore")
+
+    scraped_data_text = text_content
+
+    # Generate 3 most relevant FAQs from file content
+    try:
+        faq_completion = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "Return JSON in the exact format { \"message\": \"File analyzing successful\", \"file_data\": \"...\", \"faqs\": [ { \"question\": \"...\", \"answer\": \"...\" } ] }."},
+                {"role": "user", "content": f"Content:\n\n{text_content}\n\nGenerate 3 relevant FAQ questions and answers in Hebrew."}
+            ]
+        )
+        scraped_faqs_str = faq_completion.choices[0].message.content
+
+        # Convert the string from GPT to JSON
+        try:
+            scraped_faqs_dict = json.loads(scraped_faqs_str)
+            scraped_faqs = scraped_faqs_dict.get("faqs", [])
+        except json.JSONDecodeError:
+            scraped_faqs = []
+    except Exception as e:
+        return jsonify({"error": f"FAQ generation error: {str(e)}"}), 500
+
+    return jsonify({
+        "message": "File analyzing successful",
+        "file_data": text_content,
+        "faqs": scraped_faqs
+    })
+
 
 @app.route("/scrape", methods=['POST'])
 def scrape():
