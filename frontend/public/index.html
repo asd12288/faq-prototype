@@ -40,7 +40,7 @@
         <h3 class="form-title">נסו עכשיו על האתר שלכם</h3>
         <i class="fas fa-arrow-down"></i>
 
-        <div class="input-section">
+        <div class="input-section" id="step1">
           <label for="scrapeBtn"><strong>שלב 1 </strong>כתובת האתר</label>
           <input type="text" id="scraperUrl" placeholder="כתובת האתר..." />
           <button id="scrapeBtn" class="form-btn">סרוק אתר</button>
@@ -55,10 +55,12 @@
 
         <!-- FAQ Section -->
         <!-- Query Section (Asking a Question) -->
-        <div class="input-section">
+        <div class="input-section hidden" id="step2">
           <label for="query"><strong>שלב 2 </strong>שאלו כל שאלה על העסק</label>
           <input type="text" id="query" placeholder="הכניסו שאלה..." />
           <button id="askBtn" class="form-btn">שאל</button>
+          <button id="backBtn" class="form-btn">חזרה</button>
+
         </div>
         <div id="response" class="response-container">
           <!-- Populated by JavaScript after scraping or asking a question -->
@@ -78,6 +80,7 @@
               <h3 class="faq-question">שאלת דוגמא 3</h3>
               <p class="faq-answer">תשובה דוגמא 3</p>
             </div> -->
+           
         </div>
       </div>
 

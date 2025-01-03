@@ -1,3 +1,8 @@
+const toggleStep = (el) => {
+  const inputEl = document.getElementById(el);
+  inputEl.classList.toggle("hidden");
+};
+
 document.getElementById("scrapeBtn").addEventListener("click", async () => {
   const url = document.getElementById("scraperUrl").value;
   const responseElement = document.getElementById("faq");
@@ -161,14 +166,24 @@ document
             <h3 class="faq-question">${faq.question}</h3>
             <p class="faq-answer">${faq.answer}</p>
           </div>
+          
         `
           )
           .join("");
 
         responseElement.innerHTML = faqHtml;
+        toggleStep("step1");
+        toggleStep("step2");
       }
     } catch (error) {
       responseElement.innerHTML = `<div class="error">Error: ${error}</div>`;
       console.error(error);
     }
   });
+
+document.getElementById("backBtn").addEventListener("click", () => {
+  toggleStep("step1");
+  toggleStep("step2");
+  document.getElementById("response").innerHTML = "";
+  document.getElementById("fileInput").value = "";
+});

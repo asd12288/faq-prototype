@@ -441,3 +441,7 @@ footer {
 .footer-right {
   
 }
+
+.hidden {
+  display: none;
+}
