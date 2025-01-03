@@ -15,26 +15,28 @@
   <header>
     <nav>
       <ul>
-        <li><a href="#">נסו עכשיו</a></li>
-        <li><a href="#">איך זה עובד?</a></li>
-        <li><a href="#">צרו איתנו קשר</a></li>
+        <li><a href="#container-header">נסו עכשיו</a></li>
+        <li><a href="#container-how-it-work">איך זה עובד?</a></li>
+        <li><a href="#container-info">צרו איתנו קשר</a></li>
       </ul>
-      <h2 class="logo">WEBAI-FAQ</h2>
+      <h2 class="logo"><a class="logo" href="#container-header">WEBAI-FAQ</a></h2>
 
     </nav>
   </header>
-  <section class="container-header">
+
+  <section id="container-header" class="container-header">
     <div class="right-container-heading">
 
       <h1 class="title">הפכו את האתר שלכם לחכם</h1>
       <h2 class="subtitle">בעזרת AI הפכו את האתר שלכם לדור החדש של האינטרנט</h2>
-      <button class="btn">Show me</button>
+      <button class="btn"><a href="#container-how-it-work">איך זה עובד?</a></button>
     </div>
     <div class="left-container-heading">
 
       <!-- Scraping Section -->
-      <div class="form-container">
-        <h3 class="form-title">נסו עכשיו</h3>
+      <div class="form-container" id="form">
+        <h3 class="form-title">נסו עכשיו על האתר שלכם</h3>
+        <i class="fas fa-arrow-down"></i>
 
         <div class="input-section">
           <label for="scrapeBtn"><strong>שלב 1 </strong>כתובת האתר שלכם</label>
@@ -79,29 +81,51 @@
 
   </section>
 
-  <section class="container-how-it-work">
+  <section id="container-how-it-work" class="container-how-it-work">
     <h2 class="section-title">איך זה עובד?</h2>
     <div class="container-cards">
       <div class="card">
         <i class="fas fa-upload icon"></i>
         <h3>העלאת מסמכים</h3>
-        <p>הכניסו את כתובת האתר שלכם ואנו נסרוק אותו ונציג לכם את השאלות הנפוצות ביותר</p>
+        <ul>
+          <li>
+            הזינו את כתובת האתר שלכם
+          </li>
+          <li>
+            <p> תוכלו לעלות מסמכים בפורמטים שונים על החברה שלכם</p>
+          </li>
+        </ul>
       </div>
       <div class="card">
         <i class="fas fa-atom icon"></i>
         <h3>עיבוד המידע</h3>
-        <p>המערכת שלנו משתמשת ב-AI כדי למפות את המידע, ליצור שאלות ותשובות ולהתאים אותן לצרכי האתר שלכם.</p>
+        <ul>
+          <li>
+            <p>המערכת שלנו סוקרת את המידע שלכם</p>
+          </li>
+          <li>
+            <p> המערכת מסיקה את השאלות הכי רלוונטיות ושומרת אותם לשליפה מהירה </p>
+          </li>
+        </ul>
       </div>
       <div class="card">
         <i class="fas fa-file-code icon"></i>
 
-        <h3>הטמאת התוסף</h3>
-        <p>קבלו קוד HTML להטמעה באתר שלכם, עם ממשק FAQ מוכן לשימוש.</p>
+        <h3>הטמעת התוסף</h3>
+        <ul>
+          <li>
+            <p>אתם מקבלים תוסף מוכן של FAQ ושורת ה AI שלנו</p>
+          </li>
+          <li>
+            <p>התוסף מותאם לכל סוגי האתרים ומספק חווית משתמש מושלמת</p>
+          </li>
+        </ul>
+
       </div>
     </div>
   </section>
 
-  <section class="container-info">
+  <section class="container-info" id="container-info">
 
   </section>
 
@@ -110,11 +134,11 @@
       <form class="form-container">
         <h2 class="form-title">צרו איתנו קשר</h2>
         <label for="name">שם מלא</label>
-        <input  type="text" placeholder="שם מלא" required />
+        <input type="text" placeholder="שם מלא" required />
         <label for="email">אימייל</label>
-        <input  type="email" placeholder="אימייל" required />
+        <input type="email" placeholder="אימייל" required />
         <label for="message">הודעה</label>
-        <input  placeholder="הודעה"></input>
+        <input placeholder="הודעה"></input>
         <button class="submit btn" type="submit">שלח</button>
       </form>
     </div>
@@ -125,6 +149,16 @@
           <div class="footer-left">
             <h3>קצת עלינו</h3>
             <p>אנחנו חברה צעירה ודינמית שמתמחה בפיתוח פתרונות טכנולוגיים חדשניים ומתקדמים.</p>
+          </div>
+          <div class="footer-right">
+            <h4>צור קשר</h4>
+            <ul>
+              <li>טלפון: 03-1234567</li>
+              <li>דוא"ל: info@ourtech.co.il</li>
+              <li>כתובת: תל אביב, ישראל</li>
+            </ul>
+          </div>
+        </div>
       </footer>
     </section>
 

@@ -16,6 +16,8 @@ client = OpenAI()
 scraped_data_text = ""
 scraped_faqs = []
 
+
+
 @app.route('/')
 def serve_frontend():
     return send_from_directory(app.static_folder, 'index.html')
@@ -68,7 +70,7 @@ def scrape():
         faq_completion = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "Return JSON in the exact format { \"message\": \"Scraping successful\", \"scraped_data\": \"...\", \"faqs\": [ { \"question\": \"...\", \"answer\": \"...\" } ] }. and always anser in hebrew"},
+                {"role": "system", "content": "Return JSON in the exact format { \"message\": \"Scraping successful\", \"scraped_data\": \"...\", \"faqs\": [ { \"question\": \"...\", \"answer\": \"...\" } ] }. and always anser in"},
                 {"role": "user", "content": f"Content:\n\n{scraped_data_text}\n\nGenerate 3 relevant FAQ questions and answers. answer always in hebrew"}
             ]
         )

@@ -8,20 +8,34 @@
   --quaternary-color: #45474b;
 }
 
+
 body {
-  box-sizing: border-box;
+  margin: 0;
   font-family: "Inter", sans-serif;
   background-color: var(--primary-color);
   color: var(--quaternary-color);
+}
+
+section {
+  padding: 0;
+}
+
+header {
+  position: sticky;
+  top: 0;
 }
 nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
-  background-color: #f8f9fa;
+  padding: 1rem 0rem;
+  background-color: var(--primary-color);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+
+
+
 
 nav a {
   text-decoration: none;
@@ -36,6 +50,15 @@ nav a {
   font-weight: 700;
   color: var(--quaternary-color);
   float: left;
+  transition: all 0.3s ease;
+  
+}
+
+.logo:hover {
+  color: var(--quaternary-color);
+  background-color: var(--primary-color);
+  transform: scale(1.02);
+
 }
 
 nav a:hover {
@@ -51,21 +74,18 @@ nav ul {
   gap: 5rem;
 }
 
-section {
-  padding: 2rem 2rem;
-  box-shadow: 0 0px 2px rgba(0, 0, 0, 0.2);
-}
-
 .container-header {
   display: flex;
 }
 
 .right-container-heading {
   width: 60%;
+  padding: 1rem 2rem;
 }
 
 .left-container-heading {
   width: 40%;
+  padding: 1rem rem;
 }
 
 .title {
@@ -89,6 +109,11 @@ section {
   font-size: 1.2rem;
   cursor: pointer;
   transition: all ease 0.3s;
+}
+
+.btn a {
+  text-decoration: none;
+  color: var(--primary-color);
 }
 
 .btn:hover {
@@ -260,6 +285,15 @@ section {
 .card h3 {
   font-size: 1.5rem;
   font-weight: 700;
+  text-align: right;
+}
+
+.card ul {
+  list-style: none;
+}
+
+.card li {
+  text-align: right;
 }
 
 input {
@@ -391,3 +425,19 @@ input:focus {
   }
 }
   
+footer {
+  margin-top: 2rem;
+  margin-bottom: 0;
+}
+
+.footer-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--quaternary-color);
+  color: var(--primary-color);
+}
+
+.footer-right {
+  
+}
