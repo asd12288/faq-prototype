@@ -1,15 +1,14 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
 
 :root {
-  --primary-color-100: #f5f7f8;
-  --primary-color-200: #cacaca;
+  --primary-color-100: #f6f8f9;
+  --primary-color-200: #f1f1f1;
 
   --secondary-color: #f4ce14;
   --tertiary-color: #379777;
   --tertiary-color-dark: #286853;
   --quaternary-color: #45474b;
 }
-
 
 body {
   margin: 0;
@@ -35,8 +34,6 @@ nav {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-
-
 nav a {
   text-decoration: none;
   color: var(--quaternary-color);
@@ -45,20 +42,18 @@ nav a {
   transition: all ease 0.3s;
 }
 
-.logo{
+.logo {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--quaternary-color);
   float: left;
   transition: all 0.3s ease;
-  
 }
 
 .logo:hover {
   color: var(--quaternary-color);
   background-color: var(--primary-color-100);
   transform: scale(1.02);
-
 }
 
 nav a:hover {
@@ -74,6 +69,11 @@ nav ul {
   gap: 5rem;
 }
 
+.cta-title {
+  margin: 1px;
+  font-size: 1.5rem;
+}
+
 .container-header {
   margin-top: 5rem;
   display: flex;
@@ -86,7 +86,7 @@ nav ul {
 
 .left-container-heading {
   width: 40%;
-  padding: 1rem rem;
+  padding: 1rem;
 }
 
 .title {
@@ -116,8 +116,6 @@ nav ul {
   transition: all ease 0.3s;
 }
 
-
-
 .btn a {
   text-decoration: none;
   color: var(--primary-color-100);
@@ -146,8 +144,6 @@ nav ul {
   color: -var(--quaternary-color);
   margin: 1rem;
 }
-
-
 
 .form-container label {
   text-align: center;
@@ -206,8 +202,6 @@ input[type="file"] {
 .custom-file-upload:hover {
   background-color: var(--primary-color-200);
 }
-
-
 
 .form-btn:hover {
   transform: translateY(-2px);
@@ -304,7 +298,37 @@ input[type="file"] {
   text-align: center;
 }
 
+.container-section {
+  display: flex;
+}
 
+.right-container {
+  width: 60%;
+  padding: 1rem 2rem;
+}
+
+.left-container {
+  width: 40%;
+  padding: 1rem 2rem;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.illustration {
+  width: 50%;
+}
+
+.container-cta {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 2rem 2rem;
+  background-color: var(--primary-color-200);
+}
 
 .container-cards {
   display: flex;
@@ -359,18 +383,16 @@ input:focus {
   box-shadow: rgba(0, 0, 0, 0.24) 0px 6px 10px;
 }
 
-
 .faq-icon {
   font-size: 1rem;
 }
-
 
 .contact-form {
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 1rem 2rem;
-} 
+}
 
 .contact-form input {
   width: 80%;
@@ -384,7 +406,6 @@ input:focus {
   margin: 1rem;
   font-size: 1.2rem;
 }
-
 
 .loading {
   display: flex;
@@ -419,58 +440,6 @@ input:focus {
   }
 }
 
-
-@media screen and (max-width: 768px) {
-  nav ul {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-
-  .container-header {
-    flex-direction: column;
-  }
-
-  .right-container-heading,
-  .left-container-heading {
-    width: 100%;
-  }
-
-  .title {
-    font-size: 3rem;
-  }
-
-  .subtitle {
-    font-size: 1.5rem;
-  }
-
-  .form-container {
-    width: 100%;
-    padding: 1rem;
-  }
-
-  .input-section {
-    width: 100%;
-  }
-
-  .response-container {
-    width: 100%;
-  }
-
-  .faq-container {
-    width: 100%;
-  }
-
-  .container-cards {
-    flex-direction: column;
-  }
-
-  .card {
-    width: 100%;
-    margin: 1rem 0;
-  }
-}
-  
 footer {
   margin-top: 2rem;
   margin-bottom: 0;
@@ -482,10 +451,6 @@ footer {
   align-items: center;
   background-color: var(--quaternary-color);
   color: var(--primary-color);
-}
-
-.footer-right {
-  
 }
 
 .hidden {
