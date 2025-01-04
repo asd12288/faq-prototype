@@ -4,16 +4,46 @@
 const scanBtn = document.getElementById("scanBtn");
 const askBtn = document.getElementById("askBtn");
 const backBtn = document.getElementById("backBtn");
+const askBtneExample = document.getElementById("askBtn-example");
 
 // Sections & Inputs
 const scraperUrl = document.getElementById("scraperUrl");
 const fileInput = document.getElementById("fileInput");
 const queryInput = document.getElementById("query");
 const fileNameDisplay = document.getElementById("fileName");
+const queryExample = document.getElementById("query-example");
 
 // Response Containers
 const faqContainer = document.getElementById("faq");
 const responseContainer = document.getElementById("response");
+const responseExampleContainer = document.getElementById("response-example");
+
+const step = document.getElementById("step");
+
+/********************************************************************
+ * html Template
+ ********************************************************************/
+
+function createFaqHtml(data) {
+  const faqHtml = `
+  <div class="questions-container">
+    <h2 class="faq-title">שאלות נפוצות</h2>
+    <div class="faq-list">
+      ${data.faqs
+        .map(
+          (faq) => `
+            <div class="faq-item">
+              <h3 class="faq-question">${faq.question}</h3>
+              <p class="faq-answer">${faq.answer}</p>
+            </div>
+          `
+        )
+        .join("")}
+    </div>
+  </div>
+`;
+  return faqHtml;
+}
 
 /********************************************************************
  * Utility Functions
@@ -103,48 +133,14 @@ async function handleScrape(url) {
       return;
     }
 
-    // Build FAQ HTML
-    const faqHtml = `
-      <div class="questions-container">
-        <h2 class="faq-title">שאלות נפוצות</h2>
-        <div class="faq-list">
-          ${data.faqs
-            .map(
-              (faq) => `
-                <div class="faq-item">
-                  <h3 class="faq-question">${faq.question}</h3>
-                  <p class="faq-answer">${faq.answer}</p>
-                </div>
-              `
-            )
-            .join("")}
-        </div>
-      </div>
-    `;
-    faqContainer.innerHTML = faqHtml;
+    const html = createFaqHtml(data);
+
+    faqContainer.innerHTML = html;
     toggleStep("step1");
     toggleStep("step2");
-
-    // FAQ toggling
-    document.querySelectorAll(".faq-question").forEach((q) => {
-      q.addEventListener("click", () => {
-        const isActive = q.classList.contains("active");
-        document
-          .querySelectorAll(".faq-question")
-          .forEach((qt) => qt.classList.remove("active"));
-        document
-          .querySelectorAll(".faq-answer")
-          .forEach((a) => (a.style.display = "none"));
-
-        if (!isActive) {
-          q.classList.add("active");
-          const ans = q.nextElementSibling;
-          if (ans && ans.classList.contains("faq-answer")) {
-            ans.style.display = "block";
-          }
-        }
-      });
-    });
+    backBtn.classList.remove("hidden");
+    step.scrollIntoView({ behavior: "smooth" });
+    step.innerText = "שלב 2: שאלו כל שאלה על העסק";
   } catch (error) {
     faqContainer.innerHTML = `<div class="error">Error: ${error}</div>`;
     console.error(error);
@@ -168,27 +164,20 @@ async function handleFileUpload(file) {
     const data = await res.json();
 
     if (data.error) {
-      responseContainer.innerHTML = `<div class="error">Error: ${data.error}</div>`;
+      faqContainer.innerHTML = `<div class="error">Error: ${data.error}</div>`;
       return;
     }
 
     // Build HTML for file analysis & related FAQs
-    const faqHtml = (data.faqs || [])
-      .map(
-        (faq) => `
-          <div class="faq-item">
-            <h3 class="faq-question">${faq.question}</h3>
-            <p class="faq-answer">${faq.answer}</p>
-          </div>
-        `
-      )
-      .join("");
+    const html = createFaqHtml(data);
 
-    responseContainer.innerHTML = faqHtml;
+    faqContainer.innerHTML = html;
+
     toggleStep("step1");
     toggleStep("step2");
+    backBtn.classList.remove("hidden");
   } catch (error) {
-    responseContainer.innerHTML = `<div class="error">Error: ${error}</div>`;
+    faqContainer.innerHTML = `<div class="error">Error: ${error}</div>`;
     console.error(error);
   }
 }
@@ -219,13 +208,47 @@ async function handleAsk() {
     }
 
     // Build HTML for the main answer
+
+    const mainAnswerHtml = `
+    <h2 class="response-title">${query}</h2>
+    <p>${data.main_answer}</p>
+  `;
+
+    responseContainer.innerHTML = mainAnswerHtml;
+  } catch (error) {
+    responseContainer.innerHTML = `<div class="error">Error: ${error}</div>`;
+    console.error(error);
+  }
+}
+
+async function handleAskExample() {
+  const query = queryExample.value.trim();
+  if (!query) {
+    alert("הכניסו שאלה לפני לחיצה על הכפתור");
+    return;
+  }
+  loader(responseExampleContainer);
+  try {
+    const res = await fetch("/ask-us", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: query }),
+    });
+    const data = await res.json();
+
+    if (data.error) {
+      responseExampleContainer.innerHTML = `<div class="error">Error: ${data.error}</div>`;
+      return;
+    }
+
+    // Build HTML for the main answer
     const mainAnswerHtml = `
       <h2 class="response-title">${query}</h2>
       <p>${data.main_answer}</p>
     `;
-    responseContainer.innerHTML = mainAnswerHtml;
+    responseExampleContainer.innerHTML = mainAnswerHtml;
   } catch (error) {
-    responseContainer.innerHTML = `<div class="error">Error: ${error}</div>`;
+    responseExampleContainer.innerHTML = `<div class="error">Error: ${error}</div>`;
     console.error(error);
   }
 }
@@ -237,6 +260,7 @@ function handleBack() {
   toggleStep("step1");
   toggleStep("step2");
   resetForm();
+  backBtn.classList.add("hidden");
 }
 
 /********************************************************************
@@ -247,8 +271,10 @@ scanBtn.addEventListener("click", handleScan);
 askBtn.addEventListener("click", handleAsk);
 backBtn.addEventListener("click", handleBack);
 
-handleBtnText(scraperUrl, scanBtn, "סרוק אתר...");
-handleBtnText(fileInput, scanBtn, "סרוק קובץ...");
+askBtneExample.addEventListener("click", handleAskExample);
+
+handleBtnText(scraperUrl, scanBtn, "סרוק אתר");
+handleBtnText(fileInput, scanBtn, "סרוק קובץ");
 
 // scroll to top
 document.querySelectorAll('a[href^="#"]').forEach((anchor) => {

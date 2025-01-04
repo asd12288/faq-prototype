@@ -18,6 +18,10 @@ client = OpenAI()
 scraped_data_text = ""
 scraped_faqs = []
 
+# Load business data from data.txt at startup
+data_file_path = os.path.join(os.path.dirname(__file__), "data.txt")
+with open(data_file_path, "r", encoding="utf-8") as f:
+    business_data = f.read()
 
 
 @app.route('/')
@@ -180,6 +184,42 @@ def ask():
     except Exception as e:
         return jsonify({"error": f"OpenAI API error: {str(e)}"}), 500
 
+
+@app.route('/ask-us', methods=['POST'])
+def ask_data():
+    req_data = request.get_json()
+    question = req_data.get('question')
+    if not question:
+        return jsonify({"error": "No question provided"}), 400
+
+    try:
+        completion = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are an AI that answers questions about the business described below in Hebrew. Return a JSON object with a 'main_answer' field."},
+                {"role": "user", "content": f"Business Data:\n{business_data}\n\nQuestion: {question}"}
+            ]
+        )
+        raw_answer = completion.choices[0].message.content
+
+        
+        # If your "raw_answer" is already JSON, parse it
+        # or just return it as a 'main_answer' if it isn't JSON
+        try:
+            parsed = json.loads(raw_answer)
+            main_answer = parsed.get("main_answer", raw_answer)
+        except json.JSONDecodeError:
+            main_answer = raw_answer
+
+        return jsonify({
+            "main_answer": main_answer
+        })
+
+    except Exception as e:
+        return jsonify({"error": f"OpenAI error: {str(e)}"}), 500
+
+    
+    
 if __name__ == '__main__':
     app.run(host='0.0.0.0',      # Allows external connections
         port=8080,           # Custom port
