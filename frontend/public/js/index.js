@@ -1,18 +1,76 @@
+/********************************************************************
+ * DOM Element References
+ ********************************************************************/
+const scanBtn = document.getElementById("scanBtn");
+const askBtn = document.getElementById("askBtn");
+const backBtn = document.getElementById("backBtn");
+
+// Sections & Inputs
+const scraperUrl = document.getElementById("scraperUrl");
+const fileInput = document.getElementById("fileInput");
+const queryInput = document.getElementById("query");
+const fileNameDisplay = document.getElementById("fileName");
+
+
+// Response Containers
+const faqContainer = document.getElementById("faq");
+const responseContainer = document.getElementById("response");
+
+/********************************************************************
+ * Utility Functions
+ ********************************************************************/
 const toggleStep = (el) => {
-  const inputEl = document.getElementById(el);
-  inputEl.classList.toggle("hidden");
+  document.getElementById(el).classList.toggle("hidden");
 };
 
-document.getElementById("scrapeBtn").addEventListener("click", async () => {
-  const url = document.getElementById("scraperUrl").value;
-  const responseElement = document.getElementById("faq");
+const loader = (el) => {
+  el.innerHTML = `
+    <div class="loading">
+      <div class="loader"></div>
+    </div>
+  `;
+};
 
-  if (!url) {
-    alert("הכניסו כתובת URL לפני לחיצה על הכפתור");
+function resetForm() {
+  scraperUrl.value = "";
+  fileInput.value = "";
+  queryInput.value = "";
+  faqContainer.innerHTML = "";
+  responseContainer.innerHTML = "";
+}
+
+fileInput.addEventListener("change", function () {
+  if (fileInput.files.length > 0) {
+    fileNameDisplay.textContent = `Selected file: ${fileInput.files[0].name}`;
+  } else {
+    fileNameDisplay.textContent = "";
+  }
+});
+/********************************************************************
+ * Unified Scan Logic
+ ********************************************************************/
+async function handleScan() {
+  const url = scraperUrl.value.trim();
+  const file = fileInput.files[0];
+
+  if (!url && !file) {
+    alert("אנא הזינו כתובת אתר או העלו קובץ לפני הסריקה");
     return;
   }
 
-  loader(responseElement);
+  // If file exists, upload; otherwise, scrape the given URL
+  if (file) {
+    await handleFileUpload(file);
+  } else {
+    await handleScrape(url);
+  }
+}
+
+/********************************************************************
+ * Scrape Logic
+ ********************************************************************/
+async function handleScrape(url) {
+  loader(faqContainer);
 
   try {
     const res = await fetch("/scrape", {
@@ -23,167 +81,150 @@ document.getElementById("scrapeBtn").addEventListener("click", async () => {
     const data = await res.json();
 
     if (data.error) {
-      responseElement.innerHTML = `<div class="error">Error: ${data.error}</div>`;
-    } else {
-      console.log(data.faqs);
-      // Build HTML to display 3 relevant FAQs
-      const faqHtml = `
-  <div class="questions-container">
-    <h2 class="faq-title">שאלות נפוצות</h2>
-    <div class="faq-list">
-      ${data.faqs
-        .map(
-          (faq) => `
-        <div class="faq-item">
-          <h3 class="faq-question">${faq.question}</h3>
-          <p class="faq-answer">${faq.answer}</p>
-        </div>
-      `
-        )
-        .join("")}
-    </div>
-  </div>
-`;
-
-      responseElement.innerHTML = faqHtml;
-
-      // FAQ toggling
-      document.querySelectorAll(".faq-question").forEach((q) => {
-        q.addEventListener("click", () => {
-          const isActive = q.classList.contains("active");
-          document
-            .querySelectorAll(".faq-question")
-            .forEach((qt) => qt.classList.remove("active"));
-          document
-            .querySelectorAll(".faq-answer")
-            .forEach((a) => (a.style.display = "none"));
-          if (!isActive) {
-            q.classList.add("active");
-            const ans = q.nextElementSibling;
-            if (ans && ans.classList.contains("faq-answer"))
-              ans.style.display = "block";
-          }
-        });
-      });
+      faqContainer.innerHTML = `<div class="error">Error: ${data.error}</div>`;
+      return;
     }
+
+    // Build FAQ HTML
+    const faqHtml = `
+      <div class="questions-container">
+        <h2 class="faq-title">שאלות נפוצות</h2>
+        <div class="faq-list">
+          ${data.faqs
+            .map(
+              (faq) => `
+                <div class="faq-item">
+                  <h3 class="faq-question">${faq.question}</h3>
+                  <p class="faq-answer">${faq.answer}</p>
+                </div>
+              `
+            )
+            .join("")}
+        </div>
+      </div>
+    `;
+    faqContainer.innerHTML = faqHtml;
+    toggleStep("step1");
+    toggleStep("step2");
+
+    // FAQ toggling
+    document.querySelectorAll(".faq-question").forEach((q) => {
+      q.addEventListener("click", () => {
+        const isActive = q.classList.contains("active");
+        document
+          .querySelectorAll(".faq-question")
+          .forEach((qt) => qt.classList.remove("active"));
+        document
+          .querySelectorAll(".faq-answer")
+          .forEach((a) => (a.style.display = "none"));
+
+        if (!isActive) {
+          q.classList.add("active");
+          const ans = q.nextElementSibling;
+          if (ans && ans.classList.contains("faq-answer")) {
+            ans.style.display = "block";
+          }
+        }
+      });
+    });
   } catch (error) {
-    responseElement.innerHTML = `<div class="error">Error: ${data.error}</div>`;
+    faqContainer.innerHTML = `<div class="error">Error: ${error}</div>`;
     console.error(error);
   }
-});
+}
 
-/********************************************
- * QUESTION-ASKING LOGIC
- ********************************************/
+/********************************************************************
+ * File Upload Logic
+ ********************************************************************/
+async function handleFileUpload(file) {
+  const formData = new FormData();
+  formData.append("file", file);
 
-document.getElementById("askBtn").addEventListener("click", async () => {
-  const query = document.getElementById("query").value;
-  const responseElement = document.getElementById("response");
+  loader(faqContainer);
 
+  try {
+    const res = await fetch("/file-upload", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await res.json();
+
+    if (data.error) {
+      responseContainer.innerHTML = `<div class="error">Error: ${data.error}</div>`;
+      return;
+    }
+
+    // Build HTML for file analysis & related FAQs
+    const faqHtml = (data.faqs || [])
+      .map(
+        (faq) => `
+          <div class="faq-item">
+            <h3 class="faq-question">${faq.question}</h3>
+            <p class="faq-answer">${faq.answer}</p>
+          </div>
+        `
+      )
+      .join("");
+
+    responseContainer.innerHTML = faqHtml;
+    toggleStep("step1");
+    toggleStep("step2");
+  } catch (error) {
+    responseContainer.innerHTML = `<div class="error">Error: ${error}</div>`;
+    console.error(error);
+  }
+}
+
+/********************************************************************
+ * Question-Asking Logic
+ ********************************************************************/
+async function handleAsk() {
+  const query = queryInput.value.trim();
   if (!query) {
     alert("הכניסו שאלה לפני לחיצה על הכפתור");
     return;
   }
 
-  loader(responseElement);
+  loader(responseContainer);
 
   try {
-    // POST to your /ask endpoint
-    const response = await fetch("/ask", {
+    const res = await fetch("/ask", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ question: query }),
     });
-    const data = await response.json();
+    const data = await res.json();
 
-    // Build HTML for main answer & related FAQs
-    const mainAnswerHtml = `
-          <h2 class="response-title">${query}</h2>
-          <p>${data.main_answer}</p>
-      `;
-
-    // Append the new answer and related FAQs to the existing content
-    responseElement.innerHTML = mainAnswerHtml;
-  } catch (error) {
-    responseElement.innerHTML = `<div class="error">Error: ${data.error}</div>`;
-    console.error(error);
-  }
-});
-
-const loader = (el) => {
-  return (el.innerHTML = `<div class="loading">
-            <div class="loader"></div>
-          </div>`);
-};
-
-// SCROLLING ANIMATION
-document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-  anchor.addEventListener("click", function (e) {
-    e.preventDefault();
-
-    document.querySelector(this.getAttribute("href")).scrollIntoView({
-      behavior: "smooth",
-    });
-  });
-});
-
-// Handle file upload
-document
-  .getElementById("uploadFileBtn")
-  .addEventListener("click", async (e) => {
-    e.preventDefault();
-    const fileInput = document.getElementById("fileInput");
-    const responseElement = document.getElementById("response");
-    if (!fileInput.files.length) {
-      alert("Please select a file.");
+    if (data.error) {
+      responseContainer.innerHTML = `<div class="error">Error: ${data.error}</div>`;
       return;
     }
 
-    const formData = new FormData();
-    formData.append("file", fileInput.files[0]);
+    // Build HTML for the main answer
+    const mainAnswerHtml = `
+      <h2 class="response-title">${query}</h2>
+      <p>${data.main_answer}</p>
+    `;
+    responseContainer.innerHTML = mainAnswerHtml;
+  } catch (error) {
+    responseContainer.innerHTML = `<div class="error">Error: ${error}</div>`;
+    console.error(error);
+  }
+}
 
-    // Show loader
-    loader(responseElement);
-
-    try {
-      const res = await fetch("/file-upload", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
-
-      if (data.error) {
-        responseElement.innerHTML = `<div class="error">Error: ${data.error}</div>`;
-      } else {
-        // Build HTML for file analysis & related FAQs
-
-        const faqHtml = (data.faqs || [])
-          .map(
-            (faq) => `
-          <div class="faq-item">
-            <h3 class="faq-question">${faq.question}</h3>
-            <p class="faq-answer">${faq.answer}</p>
-          </div>
-          
-        `
-          )
-          .join("");
-
-        responseElement.innerHTML = faqHtml;
-        toggleStep("step1");
-        toggleStep("step2");
-      }
-    } catch (error) {
-      responseElement.innerHTML = `<div class="error">Error: ${error}</div>`;
-      console.error(error);
-    }
-  });
-
-document.getElementById("backBtn").addEventListener("click", () => {
+/********************************************************************
+ * Back Button Logic
+ ********************************************************************/
+function handleBack() {
   toggleStep("step1");
   toggleStep("step2");
-  document.getElementById("response").innerHTML = "";
-  document.getElementById("fileInput").value = "";
-});
+  resetForm();
+}
+
+/********************************************************************
+ * Event Listeners
+ ********************************************************************/
+// Single “Scan” button for both URL & file
+scanBtn.addEventListener("click", handleScan);
+askBtn.addEventListener("click", handleAsk);
+backBtn.addEventListener("click", handleBack);

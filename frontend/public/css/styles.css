@@ -1,7 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
 
 :root {
-  --primary-color: #f5f7f8;
+  --primary-color-100: #f5f7f8;
+  --primary-color-200: #cacaca;
+
   --secondary-color: #f4ce14;
   --tertiary-color: #379777;
   --tertiary-color-dark: #286853;
@@ -12,7 +14,7 @@
 body {
   margin: 0;
   font-family: "Inter", sans-serif;
-  background-color: var(--primary-color);
+  background-color: var(--primary-color-100);
   color: var(--quaternary-color);
 }
 
@@ -29,18 +31,16 @@ nav {
   justify-content: space-between;
   align-items: center;
   padding: 1rem 0rem;
-  background-color: var(--primary-color);
+  background-color: var(--primary-color-100);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 
 
-
-
 nav a {
   text-decoration: none;
-  color: #333;
-  font-size: 1.2rem;
+  color: var(--quaternary-color);
+  font-size: 1.5rem;
   padding: 0.5rem 1rem;
   transition: all ease 0.3s;
 }
@@ -56,7 +56,7 @@ nav a {
 
 .logo:hover {
   color: var(--quaternary-color);
-  background-color: var(--primary-color);
+  background-color: var(--primary-color-100);
   transform: scale(1.02);
 
 }
@@ -75,6 +75,7 @@ nav ul {
 }
 
 .container-header {
+  margin-top: 5rem;
   display: flex;
 }
 
@@ -100,10 +101,14 @@ nav ul {
   color: var(--quaternary-color);
 }
 
+.back-btn {
+  background-color: var(--quaternary-color);
+}
+
 .btn {
   padding: 0.5rem 1rem;
   background-color: var(--tertiary-color);
-  color: var(--primary-color);
+  color: var(--primary-color-100);
   border: none;
   border-radius: 5px;
   font-size: 1.2rem;
@@ -111,9 +116,11 @@ nav ul {
   transition: all ease 0.3s;
 }
 
+
+
 .btn a {
   text-decoration: none;
-  color: var(--primary-color);
+  color: var(--primary-color-100);
 }
 
 .btn:hover {
@@ -126,7 +133,7 @@ nav ul {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  background-color: var(--primary-color);
+  background-color: var(--primary-color-100);
   width: 450px;
   border-radius: 10px;
   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
@@ -140,7 +147,10 @@ nav ul {
   margin: 1rem;
 }
 
+
+
 .form-container label {
+  text-align: center;
   font-size: 1.5rem;
   font-weight: 400;
   margin-bottom: 1rem;
@@ -157,17 +167,47 @@ nav ul {
 }
 
 .form-btn {
-  width: 100%;
+  width: 80%;
   padding: 0.5rem 1rem;
   margin-top: 15px;
   background-color: var(--tertiary-color);
-  color: var(--primary-color);
+  color: var(--primary-color-100);
   border: none;
   border-radius: 5px;
   font-size: 1.2rem;
   cursor: pointer;
   transition: all ease 0.3s;
 }
+
+form {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+input[type="file"] {
+  display: none;
+}
+
+.custom-file-upload {
+  margin-top: 1rem;
+  width: 50;
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 5px;
+  background-color: var(--primary-color-100);
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+.custom-file-upload:hover {
+  background-color: var(--primary-color-200);
+}
+
+
 
 .form-btn:hover {
   transform: translateY(-2px);
@@ -181,6 +221,12 @@ nav ul {
   flex-direction: column;
   padding: 1rem 2rem;
   width: 90%;
+}
+
+.label {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 400;
 }
 
 .response-container {
@@ -314,8 +360,8 @@ input:focus {
 }
 
 
-.icon {
-  font-size: 2.5rem;
+.faq-icon {
+  font-size: 1rem;
 }
 
 
