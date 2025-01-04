@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/styles-v1.css" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
   <title>LLM FAQ Input</title>
@@ -22,56 +22,58 @@
       <h2 class="logo"><a class="logo" href="#container-header">WEBAI-FAQ</a></h2>
 
     </nav>
+
+
+    <section id="container-header" class="container-header">
+      <div class="right-container-heading">
+
+        <h1 class="title">הפכו את האתר שלכם לחכם</h1>
+        <p class="subtitle">בעזרת AI הפכו את האתר שלכם לדור
+          <br> החדש של האינטרנט
+        </p>
+      </div>
+      <div class="left-container-heading">
   </header>
 
-  <section id="container-header" class="container-header">
-    <div class="right-container-heading">
+  <!-- Scraping Section -->
+  <section class="form-section">
+    <div class="form-container" id="form">
+      <h3 class="form-title">נסו עכשיו בחינם</h3>
+      <h3 class="form-subtitle">שלב 1: הוסיפו כתובת אתר או העלו מסמך</h3>
+      <i class="arrow fas fa-arrow-down"></i>
 
-      <h1 class="title">הפכו את האתר שלכם לחכם</h1>
-      <h2 class="subtitle">בעזרת AI הפכו את האתר שלכם לדור החדש של האינטרנט</h2>
-      <button class="btn"><a href="#container-how-it-work">איך זה עובד?</a></button>
-    </div>
-    <div class="left-container-heading">
+      <div class="form-input-section" id="step1">
+        <label for="scanBtn">כתובת האתר</label>
+        <input class="form-control" type="text" id="scraperUrl" placeholder="כתובת האתר..." />
 
-      <!-- Scraping Section -->
-      <div class="form-container" id="form">
-        <h3 class="form-title">נסו עכשיו על האתר שלכם</h3>
-        <i class="fas fa-arrow-down"></i>
-
-        <div class="input-section" id="step1">
-          <label for="scanBtn"><strong>שלב 1 </strong>כתובת האתר או העלו קובץ</label>
-          <input class="form-control" type="text" id="scraperUrl" placeholder="כתובת האתר..." />
-
-          <!-- Custom File Input -->
-          <label for="fileInput" class="custom-file-upload">או העלו קובץ <i
-              class="fas fa-upload icon faq-icon"></i></label>
-          <input type="file" name="file" id="fileInput" />
-          <p id="fileName" style="margin-top: 10px;"></p>
+        <!-- Custom File Input -->
+        <label for="fileInput" class="custom-file-upload">או העלו קובץ <i
+            class="fas fa-upload icon faq-icon"></i></label>
+        <input type="file" name="file" id="fileInput" />
+        <p id="fileName"></p>
 
 
-          <!-- Single Scan Button -->
-          <button id="scanBtn" class="form-btn">סרוק</button>
-          <p>החברה לא שומרת מידע אישי</p>
-        </div>
+        <!-- Single Scan Button -->
+        <button id="scanBtn" class="form-btn">סרוק</button>
+        <p>החברה לא שומרת שום מידע</p>
+      </div>
+      <!-- FAQ Section -->
+      <!-- Query Section (Asking a Question) -->
+      <div class="form-input-section hidden" id="step2">
+        <label for="query"><strong>שלב 2 </strong>שאלו כל שאלה על העסק</label>
+        <input type="text" id="query" placeholder="הכניסו שאלה..." />
+        <button id="askBtn" class="form-btn">שאל</button>
 
-        <!-- FAQ Section -->
-        <!-- Query Section (Asking a Question) -->
-        <div class="input-section hidden" id="step2">
-          <label for="query"><strong>שלב 2 </strong>שאלו כל שאלה על העסק</label>
-          <input type="text" id="query" placeholder="הכניסו שאלה..." />
-          <button id="askBtn" class="form-btn">שאל</button>
-          <button id="backBtn" class="form-btn back-btn">סריקת אתר חדש</button>
-
-        </div>
-        <div id="response" class="response-container">
-          <!-- Populated by JavaScript after scraping or asking a question -->
-          <!-- <h2 class="response-title">תשובה</h2>
+      </div>
+      <div id="response" class="response-container">
+        <!-- Populated by JavaScript after scraping or asking a question -->
+        <!-- <h2 class="response-title">תשובה</h2>
           <p class="response-text">תשובה דוגמא</p> -->
-        </div>
-        <!-- Response Container -->
-        <div id="faq" class="faq-container">
-          <!-- Populated by JavaScript after scraping or asking a question -->
-          <!-- <div class="questions-container">
+      </div>
+      <!-- Response Container -->
+      <div id="faq" class="faq-container">
+        <!-- Populated by JavaScript after scraping or asking a question -->
+        <!-- <div class="questions-container">
             <h2 class="faq-title">השאלות</h2>
             <div class="faq-list">
               <h3 class="faq-question">שאלת דוגמא 1</h3>
@@ -82,16 +84,68 @@
               <p class="faq-answer">תשובה דוגמא 3</p>
             </div> -->
 
+      </div>
+      <button id="backBtn" class="form-btn back-btn hidden">סריקת אתר חדש</button>
+
+    </div>
+  </section>
+
+  <section class="info">
+    <div class="right-left-container">
+      <div class="right-container">
+        <h3>מהו ה-Input החכם של WEBAI-FAQ?</h3>
+        <p>ה-Input החכם הוא אחד הפיצ'רים המתקדמים ביותר של WEBAI-FAQ, המאפשר למשתמשים באתר שלכם לשאול שאלות חופשיות בשפה
+          טבעית ולקבל תשובה מיידית, המבוססת על המידע שהוזן במערכת.
+          הפתרון הזה הופך את חוויית הגלישה באתר שלכם לאינטראקטיבית, מהירה ומותאמת אישית.</p>
+      </div>
+      <div class="left-container">
+        <div class="question-container">
+          <div class="form-input-section" id="step2">
+            <label for="query"><strong>שלב 2 </strong>שאלו כל שאלה על העסק</label>
+            <input type="text" id="query" placeholder="הכניסו שאלה..." />
+            <button id="askBtn" class="form-btn">שאל</button>
+
+            <div id="response" class="response-container-example">
+              <!-- Populated by JavaScript after scraping or asking a question -->
+              <h2 class="response-title-example">תשובה</h2>
+              <p class="response-text-example">תשובה דוגמא</p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+  <section class="info">
+    <div class="right-left-container">
+      <div class="left-container">
+        <div class="questions-container">
+          <h2 class="faq-title">השאלות</h2>
+          <div class="faq-list">
+            <h3 class="faq-question">שאלת דוגמא 1</h3>
+            <p class="faq-answer">תשובה דוגמא 1</p>
+            <h3 class="faq-question">שאלת דוגמא 2</h3>
+            <p class="faq-answer">תשובה דוגמא 2</p>
+            <h3 class="faq-question">שאלת דוגמא 3</h3>
+            <p class="faq-answer">תשובה דוגמא 3</p>
+          </div>
+        </div>
+      </div>
+      <div class="right-container">
+        <div id="faq" class="faq-container">
+          <!-- Populated by JavaScript after scraping or asking a question -->
+
+          <h3>מהו ה־FAQ החכם של WEBAI-FAQ?</h3> 
+          <p>ה-Input החכם הוא אחד הפיצ'רים המתקדמים ביותר של WEBAI-FAQ, המאפשר למשתמשים באתר שלכם לשאול שאלות חופשיות
+            בשפה
+            טבעית ולקבל תשובה מיידית, המבוססת על המידע שהוזן במערכת.
+            הפתרון הזה הופך את חוויית הגלישה באתר שלכם לאינטראקטיבית, מהירה ומותאמת אישית.</p>
+
         </div>
       </div>
 
-
-
-
     </div>
-
-    </div>
-
   </section>
 
   <section id="container-how-it-work" class="container-how-it-work">
@@ -102,7 +156,8 @@
         <h3>העלאת מסמכים</h3>
         <ul>
           <li>
-            העלו קבצים בפורמטים שונים כמו PDF, Word, Excel, JSON.
+            <p> העלו קבצים בפורמטים שונים כמו PDF, Word, Excel, JSON.
+            </p>
           </li>
           <li>
             <p>או הכניסו את כתובת האתר שלכם, ואנו נבצע את השאר.
@@ -140,31 +195,7 @@
   </section>
 
 
-  <section id="why-important" class="important-section">
-    <div class="container-section">
-      <div class="right-container">
-        <h2 class="section-title">למה זה הכרחי? </h2>
-        <p class="section-text">
-          במציאות הדיגיטלית של היום, משתמשים מצפים למידע זמין ומהיר. אתרים שלא עומדים בדרישה זו עלולים לאבד לקוחות
-          ולהשאיר רושם של מיושנות. עם WEBAI-FAQ:
-        </p>
-        <ul class="benefits-list">
-          <li>
-            <strong>חסכון בזמן ובמשאבים</strong>: תנו למערכת אוטומטית לענות על שאלות נפוצות מבלי להעמיס על צוות התמיכה
-            שלכם.
-          </li>
-          <li>
-            <strong>שיפור חוויית המשתמש</strong>: מידע זמין וממוקד יוצר שביעות רצון גבוהה יותר של לקוחות.
-          </li>
-          <li>
-            <strong>תחרותיות בשוק</strong>: בידול האתר שלכם עם אינטגרציה של AI הופך אתכם לחדשניים ועדכניים.
-          </li>
-        </ul>
-      </div>
-      <div class="left-container">
-        <img class="illustration" src="/images/faq-illustration.png" alt="FAQ Illustration" />
-      </div>
-  </section>
+
 
 
 
@@ -178,7 +209,7 @@
 
   </section>
 
-  <section class="container-contact">
+  <section class="container-contact" id="container-info">
     <div class="contact-form">
       <form class="form-container">
         <h2 class="form-title">צרו איתנו קשר</h2>
@@ -191,6 +222,7 @@
         <button class="submit btn" type="submit">שלח</button>
       </form>
     </div>
+  </section>
 
     <section>
       <footer>
@@ -200,8 +232,8 @@
             <p>אנחנו חברה צעירה ודינמית שמתמחה בפיתוח פתרונות טכנולוגיים חדשניים ומתקדמים.</p>
           </div>
           <div class="footer-right">
-            <h4>צור קשר</h4>
             <ul>
+              <li>צרו קשר:</li>
               <li>טלפון: 050-5454655</li>
               <li>דוא"ל: info@ourtech.co.il</li>
               <li>כתובת: תל אביב, ישראל</li>

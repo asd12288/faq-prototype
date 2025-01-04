@@ -11,7 +11,6 @@ const fileInput = document.getElementById("fileInput");
 const queryInput = document.getElementById("query");
 const fileNameDisplay = document.getElementById("fileName");
 
-
 // Response Containers
 const faqContainer = document.getElementById("faq");
 const responseContainer = document.getElementById("response");
@@ -46,6 +45,15 @@ fileInput.addEventListener("change", function () {
     fileNameDisplay.textContent = "";
   }
 });
+
+function handleBtnText(input, btn, text) {
+  input.addEventListener("input", () => {
+    if (input.value.startsWith("http") || input.files.length > 0) {
+      btn.innerText = text;
+    }
+  });
+}
+
 /********************************************************************
  * Unified Scan Logic
  ********************************************************************/
@@ -54,11 +62,21 @@ async function handleScan() {
   const file = fileInput.files[0];
 
   if (!url && !file) {
-    alert("אנא הזינו כתובת אתר או העלו קובץ לפני הסריקה");
+    fileNameDisplay.innerText = "אנא הזינו כתובת אתר או העלו קובץ לפני הסריקה";
     return;
   }
 
-  // If file exists, upload; otherwise, scrape the given URL
+  if (url && !url.startsWith("http")) {
+    fileNameDisplay.innerText =
+      "אנא הזינו כתובת אתר מלאה כולל (http:// או https://)";
+
+    return;
+  } else {
+    fileNameDisplay.innerText = "";
+  }
+
+  // If file exists, upload; otherwise, scrape the given
+
   if (file) {
     await handleFileUpload(file);
   } else {
@@ -228,3 +246,17 @@ function handleBack() {
 scanBtn.addEventListener("click", handleScan);
 askBtn.addEventListener("click", handleAsk);
 backBtn.addEventListener("click", handleBack);
+
+handleBtnText(scraperUrl, scanBtn, "סרוק אתר...");
+handleBtnText(fileInput, scanBtn, "סרוק קובץ...");
+
+// scroll to top
+document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+  anchor.addEventListener("click", function (e) {
+    e.preventDefault();
+
+    document.querySelector(this.getAttribute("href")).scrollIntoView({
+      behavior: "smooth", // Enables smooth scrolling
+    });
+  });
+});

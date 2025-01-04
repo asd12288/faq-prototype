@@ -223,12 +223,20 @@ input[type="file"] {
   font-weight: 400;
 }
 
+#fileName {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  width: 100%;
+  text-align: center;
+}
+
 .response-container {
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  background-color: var(--primary-color);
+  background-color: var(--primary-color-100);
   width: 90%;
   border-radius: 10px;
   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
@@ -268,13 +276,13 @@ input[type="file"] {
   text-align: center;
   cursor: pointer;
   border-radius: 5px;
-  color: var(--primary-color);
+  color: var(--primary-color-100);
 }
 
 .faq-answer {
   margin: 5px;
   padding: 12px;
-  background-color: var(--primary-color);
+  background-color: var(--primary-color-100);
   text-align: center;
 }
 
@@ -366,6 +374,11 @@ input[type="file"] {
   text-align: right;
 }
 
+.card i {
+  font-size: 2rem;
+  ;
+}
+
 input {
   font-size: 16px;
   line-height: 40px;
@@ -450,7 +463,7 @@ footer {
   justify-content: center;
   align-items: center;
   background-color: var(--quaternary-color);
-  color: var(--primary-color);
+  color: var(--primary-color-100);
 }
 
 .hidden {
