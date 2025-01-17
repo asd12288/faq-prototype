@@ -1,20 +1,23 @@
-import requests
+import openai
 import os
 import json
-from bs4 import BeautifulSoup
+import logging
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-from openai import OpenAI
 import PyPDF2
+import requests
+from bs4 import BeautifulSoup
+from openai import OpenAI
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__, static_url_path='', static_folder='../frontend/public')
 CORS(app)
 
-# Set your OpenAI API key
 client = OpenAI()
 
-# Initialize scraped_data_text and scraped_faqs as global variables
+
 scraped_data_text = ""
 scraped_faqs = []
 
@@ -23,10 +26,6 @@ data_file_path = os.path.join(os.path.dirname(__file__), "data.txt")
 with open(data_file_path, "r", encoding="utf-8") as f:
     business_data = f.read()
 
-
-@app.route('/')
-def serve_frontend():
-    return send_from_directory(app.static_folder, 'index.html')
 
 def scrape_website(url):
     try:
@@ -41,62 +40,13 @@ def scrape_website(url):
         }
         return content
     except requests.RequestException as e:
+        app.logger.error(f"Failed to fetch the website: {str(e)}")
         return {"error": f"Failed to fetch the website: {str(e)}"}
     except Exception as e:
+        app.logger.error(f"Failed to scrape the website: {str(e)}")
         return {"error": f"Failed to scrape the website: {str(e)}"}
-    
 
-@app.route('/file-upload', methods=['POST'])
-def file_upload():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part"}), 400
-    
-    uploaded_file = request.files['file']
-    if uploaded_file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
 
-    text_content = uploaded_file.read().decode("utf-8", errors="ignore")
-
-    global scraped_data_text, scraped_faqs
-
-    print(scraped_data_text)
-    if uploaded_file.filename.lower().endswith('.pdf'):
-        pdf_reader = PyPDF2.PdfReader(uploaded_file)
-        pdf_text = ""
-        for page in pdf_reader.pages:
-            pdf_text += page.extract_text() or ""
-        text_content = pdf_text
-    else:
-        # Otherwise, treat it as a text file
-        text_content = uploaded_file.read().decode("utf-8", errors="ignore")
-
-    scraped_data_text = text_content
-
-    # Generate 3 most relevant FAQs from file content
-    try:
-        faq_completion = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "Return JSON in the exact format { \"message\": \"File analyzing successful\", \"file_data\": \"...\", \"faqs\": [ { \"question\": \"...\", \"answer\": \"...\" } ] }."},
-                {"role": "user", "content": f"Content:\n\n{text_content}\n\nGenerate 3 relevant FAQ questions and answers in Hebrew."}
-            ]
-        )
-        scraped_faqs_str = faq_completion.choices[0].message.content
-
-        # Convert the string from GPT to JSON
-        try:
-            scraped_faqs_dict = json.loads(scraped_faqs_str)
-            scraped_faqs = scraped_faqs_dict.get("faqs", [])
-        except json.JSONDecodeError:
-            scraped_faqs = []
-    except Exception as e:
-        return jsonify({"error": f"FAQ generation error: {str(e)}"}), 500
-
-    return jsonify({
-        "message": "File analyzing successful",
-        "file_data": text_content,
-        "faqs": scraped_faqs
-    })
 
 
 @app.route("/scrape", methods=['POST'])
@@ -151,9 +101,87 @@ def scrape():
         "faqs": scraped_faqs
     })
 
+
+@app.route('/file-upload', methods=['POST'])
+def file_upload():
+    if 'file' not in request.files:
+        app.logger.error("No file part in the request")
+        return jsonify({"error": "No file part"}), 400
+
+    uploaded_file = request.files['file']
+    if uploaded_file.filename == '':
+        app.logger.error("No selected file")
+        return jsonify({"error": "No selected file"}), 400
+
+    global scraped_data_text, scraped_faqs
+
+    try:
+        if uploaded_file.filename.lower().endswith('.pdf'):
+            pdf_reader = PyPDF2.PdfReader(uploaded_file)
+            pdf_text = ""
+            for page in pdf_reader.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    pdf_text += page_text + "\n"
+            text_content = pdf_text
+            app.logger.info("Extracted text from PDF file")
+        else:
+            # Otherwise, treat it as a text file
+            text_content = uploaded_file.read().decode("utf-8", errors="ignore")
+            app.logger.info("Extracted text from text file")
+
+        scraped_data_text = text_content
+
+        # Generate 3 most relevant FAQs from file content
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                store=True,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "אתה מומחה לשירותי שאלות נפוצים עבור אתרים. עליך לענות על שאלות בשפה העברית תוך שימוש במידע העסקי המסופק בלבד. אל תזכיר שאתה בינה מלאכותית."
+                    },
+                    {
+                        "role": "user",
+                        "content": f"מידע עסקי:\n{scraped_data_text}\n\nGenerate 3 relevant FAQ questions and answers in Hebrew."
+                    }
+                ],
+            )
+            scraped_faqs_str = response.choices[0].message.content
+            app.logger.info(f"Raw FAQ response: {scraped_faqs_str}")
+        except Exception as e:
+            app.logger.error(f"Error during FAQ generation: {str(e)}")
+            return jsonify({"error": f"FAQ generation error: {str(e)}"}), 500
+        
+
+        try:
+             scraped_faqs_dict = json.loads(scraped_faqs_str)
+             scraped_faqs = scraped_faqs_dict.get("faqs", [])
+             app.logger.info("Parsed FAQs successfully")
+        except json.JSONDecodeError:
+             scraped_faqs = []
+             app.logger.error("Failed to decode FAQ JSON")
+        except Exception as e:
+            app.logger.exception("Error during FAQ generation")
+            return jsonify({"error": f"FAQ generation error: {str(e)}"}), 500
+
+        return jsonify({
+            "message": "File analyzing successful",
+            "file_data": scraped_data_text,
+            "faqs": scraped_faqs
+        })
+
+    except Exception as e:
+        app.logger.exception("Error during file upload processing")
+        return jsonify({"error": f"File processing error: {str(e)}"}), 500
+
+
 @app.route('/ask', methods=['POST'])
 def ask():
     global scraped_data_text, scraped_faqs
+    print(scraped_data_text)
+    print(scraped_faqs)
     
     if not scraped_data_text:
         return jsonify({"error": "No scraped data available. Please scrape a website first."}), 400
@@ -172,7 +200,7 @@ def ask():
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": f"Based on the following website data:\n\n{scraped_data_text}\n\nAnswer the question: {question} if the answer is not in the data or the question is not relevent answer with: the data is not provided or the question is not relevant."}
+                {"role": "user", "content": f"Based on the following website data:\n\n{scraped_data_text}\n\nAnswer the question: {question}"}
             ]
         )
         main_answer = main_completion.choices[0].message.content
@@ -190,38 +218,37 @@ def ask_data():
     req_data = request.get_json()
     question = req_data.get('question')
     if not question:
+        app.logger.error("No question provided in request")
         return jsonify({"error": "No question provided"}), 400
 
-    try:
-        completion = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You are an AI that answers questions about the business described below in Hebrew. Return a JSON object with a 'main_answer' field."},
-                {"role": "user", "content": f"Business Data:\n{business_data}\n\nQuestion: {question}"}
-            ]
-        )
-        raw_answer = completion.choices[0].message.content
+    app.logger.info(f"Received question: {question}")
 
-        
-        # If your "raw_answer" is already JSON, parse it
-        # or just return it as a 'main_answer' if it isn't JSON
-        try:
-            parsed = json.loads(raw_answer)
-            main_answer = parsed.get("main_answer", raw_answer)
-        except json.JSONDecodeError:
-            main_answer = raw_answer
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            store=True,
+            messages=[
+                {
+                    "role": "system",
+                    "content": "אתה מומחה לשירותי שאלות נפוצים עבור אתרים. עליך לענות על שאלות בשפה העברית תוך שימוש במידע העסקי המסופק בלבד. אל תזכיר שאתה בינה מלאכותית."
+                },
+                {
+                    "role": "user",
+                    "content": f"מידע עסקי:\n{business_data}\n\nשאלה: {question}"
+                }
+            ],
+           
+        )
+        raw_answer = response.choices[0].message.content.strip()
+        app.logger.info(f"Raw answer from OpenAI: {raw_answer}")
 
         return jsonify({
-            "main_answer": main_answer
+            "main_answer": raw_answer
         })
 
     except Exception as e:
-        return jsonify({"error": f"OpenAI error: {str(e)}"}), 500
+        app.logger.exception("Error during OpenAI API call")
+        return jsonify({"error": f"OpenAI API error: {str(e)}"}), 500
 
-    
-    
 if __name__ == '__main__':
-    app.run(host='0.0.0.0',      # Allows external connections
-        port=8080,           # Custom port
-        debug=False,         # Disable debug mode in production
-        threaded=True)       # Enable threading)
+    app.run(debug=True)
