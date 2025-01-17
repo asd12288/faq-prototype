@@ -244,7 +244,7 @@ def ask_data():
 
         return jsonify({
             "main_answer": raw_answer
-        })
+        }), 200
 
     except Exception as e:
         app.logger.exception("Error during OpenAI API call")
