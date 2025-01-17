@@ -239,7 +239,7 @@ def ask_data():
             ],
            
         )
-        raw_answer = response.choices[0].message.content.strip()
+        raw_answer = response.choices[0].message.content
         app.logger.info(f"Raw answer from OpenAI: {raw_answer}")
 
         return jsonify({
